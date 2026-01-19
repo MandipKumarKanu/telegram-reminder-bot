@@ -1,153 +1,115 @@
 # ⏰ Reminder Bot
 
-A feature-rich Telegram bot with beautiful interactive buttons for reminders, recurring tasks, and to-do lists. Uses Upstash Redis for cloud storage - perfect for hosting on Render, Railway, or any cloud platform.
+A simple Telegram bot to set reminders and manage tasks. Never forget anything again!
 
-## ✨ Features
+**👉 Try it now: [t.me/myy_reminder_bot](http://t.me/myy_reminder_bot)**
 
-### 🔔 Reminders
-- **One-time reminders** with quick options (5m, 15m, 30m, 1h, 2h, 4h, 1d)
-- **Precise time picker** - Hour/minute selection with AM/PM
-- **Calendar date picker** - Visual calendar for future dates
-- **Priority levels** - 🟢 Low, 🟡 Medium, 🔴 High, 🚨 Urgent
-- **Snooze options** - 5min, 15min, 30min, 1hr when triggered
+---
+
+## What Can It Do?
+
+### 🔔 Set Reminders
+- Quick reminders: "Remind me in 5 minutes"
+- Pick exact time from a visual clock
+- Pick date from a calendar
+- Snooze when it goes off
 
 ### 🔄 Recurring Reminders
-- **Daily** - Every day at a specific time
-- **Weekly** - Same day each week
-- **Weekdays** - Monday to Friday only
-- **Weekends** - Saturday & Sunday only
+- Daily (every day)
+- Weekly (same day each week)
+- Weekdays only (Mon-Fri)
+- Weekends only (Sat-Sun)
 
-### 📋 Task Management
-- **Categories** - 💼 Work, 👤 Personal, 💪 Health, 🛒 Shopping, 💰 Finance, 📚 Learning, 👥 Social
-- **Priority levels** - Visual indicators for urgency
-- **Quick actions** - ✅ Complete, 🗑️ Delete with one tap
-- **Category view** - Group tasks by category
+### 📋 To-Do Lists
+- Add tasks with categories (Work, Personal, Health, etc.)
+- Mark as done with one tap
+- Set priority (Low, Medium, High, Urgent)
 
-### 🌍 Timezone Support
-16 timezone presets including:
-- 🇺🇸 US (Pacific, Mountain, Central, Eastern)
-- 🇬🇧 UK, 🇪🇺 Europe (Central, Eastern)
-- 🇦🇪 Dubai, 🇮🇳 India, 🇳🇵 Nepal, 🇧🇩 Bangladesh
-- 🇹🇭 Thailand, 🇸🇬 Singapore, 🇯🇵 Japan/Korea
-- 🇦🇺 Australia, 🇳🇿 New Zealand
+### 🌍 Works in Your Timezone
+Supports 16 timezones including US, UK, Europe, India, Nepal, Japan, and more.
 
-### ⚙️ User Settings
-- **Timezone** - All times displayed in your local time
-- **Time format** - 12-hour (AM/PM) or 24-hour
-- **Default priority** - Set your preferred default
-- **Quick reminder duration** - Customize quick options
+---
 
-### 📊 Statistics & Achievements
-- Track completed tasks
-- Daily streak counter
-- Unlock achievements: 🏆 Task Master, ⭐ Productivity Pro, 🔥 Week Warrior, 👑 Centurion
+## How to Use
 
-## 📱 Screenshots
+1. Open [@myy_reminder_bot](http://t.me/myy_reminder_bot) in Telegram
+2. Press **Start**
+3. Tap buttons to set reminders or add tasks
 
-The bot features a beautiful interactive menu:
-- 🏠 Dashboard with live stats
-- ⏰ Visual time picker (AM/PM grid)
-- 📅 Calendar date picker
-- 📋 Task list with inline actions
-- 😴 Snooze buttons when reminders fire
+That's it! Everything works with buttons - no commands needed.
 
-## 🚀 Setup
+---
 
-### 1. Create Telegram Bot
+## Quick Commands (Optional)
 
+| Command | What it does |
+|---------|--------------|
+| `/start` | Open menu |
+| `/remind 10m Call mom` | Remind in 10 minutes |
+| `/remind 2h Meeting` | Remind in 2 hours |
+| `/add Buy milk` | Add a task |
+| `/time` | Show current time |
+
+---
+
+## Self-Hosting Guide
+
+Want to run your own copy? Here's how:
+
+### 1. Get a Bot Token
 1. Message [@BotFather](https://t.me/BotFather) on Telegram
-2. Create new bot with `/newbot`
-3. Copy the bot token
+2. Send `/newbot` and follow steps
+3. Copy the token it gives you
 
-### 2. Create Upstash Redis Database (Free)
-
-1. Go to [Upstash Console](https://console.upstash.com/)
-2. Create a new Redis database
+### 2. Get Upstash Redis (Free Database)
+1. Go to [console.upstash.com](https://console.upstash.com)
+2. Create account → Create database
 3. Copy the **REST URL** and **REST Token**
 
-### 3. Configure Environment
-
-Create `.env` file:
-```env
-TELEGRAM_BOT_TOKEN=your_bot_token_here
-UPSTASH_REDIS_REST_URL=https://your-db.upstash.io
-UPSTASH_REDIS_REST_TOKEN=your_token_here
-```
-
-### 4. Install & Run
-
+### 3. Set Up the Bot
 ```bash
-npm install
-npm start
+# Clone the repo
+git clone https://github.com/MandipKumarKanu/telegram-reminder-bot.git
+cd telegram-reminder-bot
 
-# For development with auto-reload:
-npm run dev
+# Install packages
+npm install
+
+# Create .env file with your tokens
+cp .env.example .env
+# Edit .env and add your tokens
+
+# Run the bot
+npm start
 ```
 
-## ☁️ Deploy to Render
+### 4. Deploy Free (Optional)
+For 24/7 running, deploy to [Koyeb](https://koyeb.com):
+1. Sign up with GitHub
+2. Create new service → Select this repo
+3. Add your 3 environment variables
+4. Deploy!
 
-1. Push your code to GitHub
-2. Create new **Web Service** on [Render](https://render.com)
-3. Connect your repository
-4. Set **Build Command**: `npm install`
-5. Set **Start Command**: `npm start`
-6. Add environment variables:
-   - `TELEGRAM_BOT_TOKEN`
-   - `UPSTASH_REDIS_REST_URL`
-   - `UPSTASH_REDIS_REST_TOKEN`
-7. Deploy!
+---
 
-## ⌨️ Commands
+## Environment Variables
 
-All features are accessible via buttons, but commands still work:
+| Name | Where to get it |
+|------|-----------------|
+| `TELEGRAM_BOT_TOKEN` | From @BotFather |
+| `UPSTASH_REDIS_REST_URL` | From Upstash dashboard |
+| `UPSTASH_REDIS_REST_TOKEN` | From Upstash dashboard |
 
-| Command | Description |
-|---------|-------------|
-| `/start` | Open main menu |
-| `/remind 10m Call mom` | Quick reminder |
-| `/remind 2h30m Meeting` | Combined time |
-| `/remind 14:30 Doctor` | Specific time |
-| `/add Buy groceries` | Add task |
-| `/list` | Show tasks |
-| `/time` | Show current time in your timezone |
+---
 
-## ⏱️ Time Formats for `/remind`
+## Tech Stack
 
-| Format | Example | Description |
-|--------|---------|-------------|
-| Minutes | `10m` | 10 minutes from now |
-| Hours | `2h` | 2 hours from now |
-| Days | `1d` | 24 hours from now |
-| Combined | `1h30m` | 1 hour 30 minutes |
-| Clock time | `14:30` | Today at 2:30 PM (or tomorrow if passed) |
+- Node.js
+- node-telegram-bot-api
+- Upstash Redis
 
-## 🗄️ Data Storage
+---
 
-All data is stored in Upstash Redis with this structure:
-- `reminders[]` - All user reminders
-- `todos{}` - Tasks grouped by chat ID
-- `stats{}` - User statistics
-- `settings{}` - User preferences (timezone, format, etc.)
+## License
 
-### Why Upstash Redis?
-
-| Feature | Free Tier |
-|---------|-----------|
-| Requests | 10,000/day |
-| Storage | 256MB |
-| Persistence | ✅ Yes |
-| REST API | ✅ No SDK needed |
-| Global | ✅ Low latency |
-
-Perfect for bots hosted on platforms that don't persist filesystem data.
-
-## 🛠️ Tech Stack
-
-- **Runtime**: Node.js
-- **Bot Framework**: node-telegram-bot-api
-- **Database**: Upstash Redis (REST API)
-- **Config**: dotenv
-
-## 📄 License
-
-MIT
+MIT - Use it however you want!
