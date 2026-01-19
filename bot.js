@@ -1,5 +1,17 @@
 require("dotenv").config({ override: true });
 const TelegramBot = require("node-telegram-bot-api");
+const http = require("http");
+
+// ============================================
+// HEALTH CHECK SERVER (for Koyeb/Render)
+// ============================================
+const PORT = process.env.PORT || 8000;
+http.createServer((req, res) => {
+  res.writeHead(200, { "Content-Type": "text/plain" });
+  res.end("OK");
+}).listen(PORT, () => {
+  console.log(`🌐 Health check server running on port ${PORT}`);
+});
 
 // ============================================
 // CONFIG
