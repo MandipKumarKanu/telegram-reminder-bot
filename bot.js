@@ -200,6 +200,25 @@ bot.on("polling_error", (error) =>
 global.userStates = {};
 
 // ============================================
+// SAFE EDIT MESSAGE (prevents crash on duplicate edits)
+// ============================================
+async function safeEditMessage(chatId, messageId, text, options = {}) {
+  try {
+    await bot.editMessageText(text, {
+      chat_id: chatId,
+      message_id: messageId,
+      ...options,
+    });
+  } catch (err) {
+    // Ignore "message is not modified" errors (Telegram error code 400)
+    const errMsg = err.message || err.description || String(err);
+    if (!errMsg.includes("message is not modified") && !errMsg.includes("Bad Request")) {
+      console.error("Edit message error:", errMsg);
+    }
+  }
+}
+
+// ============================================
 // EMOJI & VISUAL CONSTANTS
 // ============================================
 const PRIORITY_EMOJI = { low: "🟢", medium: "🟡", high: "🔴", urgent: "🚨" };
@@ -288,7 +307,9 @@ bot.onText(/\/start/, (msg) =>
 
 async function sendMainMenu(chatId, messageId = null, firstName = "Friend") {
   const stats = getUserStats(chatId);
-  const pendingTasks = (data.todos[chatId] || []).filter((t) => !t.done).length;
+  const todos = data.todos[chatId] || [];
+  const pendingTasks = todos.filter((t) => !t.done).length;
+  const completedTasks = todos.filter((t) => t.done).length;
   const activeReminders = data.reminders.filter(
     (r) => r.chatId === chatId,
   ).length;
@@ -301,7 +322,7 @@ async function sendMainMenu(chatId, messageId = null, firstName = "Friend") {
 📊 <b>Your Dashboard</b>
 ├ 🔔 Active Reminders: <b>${activeReminders}</b>
 ├ 📋 Pending Tasks: <b>${pendingTasks}</b>
-├ ✅ Completed: <b>${stats.completed}</b>
+├ ✅ Completed: <b>${completedTasks}</b>
 └ 🔥 Streak: <b>${stats.streak} days</b>
 
 <i>What would you like to do?</i>`;
@@ -383,9 +404,7 @@ Choose a quick option or set custom time:`;
     ],
   };
 
-  await bot.editMessageText(text, {
-    chat_id: chatId,
-    message_id: messageId,
+  await safeEditMessage(chatId, messageId, text, {
     parse_mode: "HTML",
     reply_markup: keyboard,
   });
@@ -453,9 +472,7 @@ async function showTimePicker(chatId, messageId, selectedDate = null) {
     ],
   };
 
-  await bot.editMessageText(text, {
-    chat_id: chatId,
-    message_id: messageId,
+  await safeEditMessage(chatId, messageId, text, {
     parse_mode: "HTML",
     reply_markup: keyboard,
   });
@@ -513,9 +530,7 @@ async function showMinutePicker(chatId, messageId, hour, ampm) {
     ],
   };
 
-  await bot.editMessageText(text, {
-    chat_id: chatId,
-    message_id: messageId,
+  await safeEditMessage(chatId, messageId, text, {
     parse_mode: "HTML",
     reply_markup: keyboard,
   });
@@ -549,9 +564,7 @@ async function askCustomMinute(chatId, messageId) {
     ],
   };
 
-  await bot.editMessageText(text, {
-    chat_id: chatId,
-    message_id: messageId,
+  await safeEditMessage(chatId, messageId, text, {
     parse_mode: "HTML",
     reply_markup: keyboard,
   });
@@ -662,9 +675,7 @@ async function showDatePicker(chatId, messageId, monthOffset = 0) {
     { text: "❌ Cancel", callback_data: "main_menu" },
   ]);
 
-  await bot.editMessageText(text, {
-    chat_id: chatId,
-    message_id: messageId,
+  await safeEditMessage(chatId, messageId, text, {
     parse_mode: "HTML",
     reply_markup: keyboard,
   });
@@ -698,9 +709,7 @@ async function showPriorityPicker(chatId, messageId) {
     ],
   };
 
-  await bot.editMessageText(text, {
-    chat_id: chatId,
-    message_id: messageId,
+  await safeEditMessage(chatId, messageId, text, {
     parse_mode: "HTML",
     reply_markup: keyboard,
   });
@@ -731,9 +740,7 @@ ${priorityEmoji} Priority: <b>${priority}</b>
     inline_keyboard: [[{ text: "❌ Cancel", callback_data: "main_menu" }]],
   };
 
-  await bot.editMessageText(text, {
-    chat_id: chatId,
-    message_id: messageId,
+  await safeEditMessage(chatId, messageId, text, {
     parse_mode: "HTML",
     reply_markup: keyboard,
   });
@@ -774,9 +781,7 @@ async function askRecurringText(chatId, messageId) {
     inline_keyboard: [[{ text: "❌ Cancel", callback_data: "rec_menu" }]],
   };
 
-  await bot.editMessageText(text, {
-    chat_id: chatId,
-    message_id: messageId,
+  await safeEditMessage(chatId, messageId, text, {
     parse_mode: "HTML",
     reply_markup: keyboard,
   });
@@ -853,9 +858,7 @@ async function showTodoMenu(chatId, messageId) {
     { text: "« Main Menu", callback_data: "main_menu" },
   ]);
 
-  await bot.editMessageText(text, {
-    chat_id: chatId,
-    message_id: messageId,
+  await safeEditMessage(chatId, messageId, text, {
     parse_mode: "HTML",
     reply_markup: keyboard,
   });
@@ -904,9 +907,7 @@ async function showTodoCategoriesMenu(chatId, messageId) {
     ],
   };
 
-  await bot.editMessageText(text, {
-    chat_id: chatId,
-    message_id: messageId,
+  await safeEditMessage(chatId, messageId, text, {
     parse_mode: "HTML",
     reply_markup: keyboard,
   });
@@ -955,9 +956,7 @@ ${PRIORITY_EMOJI[task.priority]} Priority: <b>${task.priority}</b>
     ],
   };
 
-  await bot.editMessageText(text, {
-    chat_id: chatId,
-    message_id: messageId,
+  await safeEditMessage(chatId, messageId, text, {
     parse_mode: "HTML",
     reply_markup: keyboard,
   });
@@ -998,9 +997,7 @@ async function startAddTaskFlow(chatId, messageId) {
     ],
   };
 
-  await bot.editMessageText(text, {
-    chat_id: chatId,
-    message_id: messageId,
+  await safeEditMessage(chatId, messageId, text, {
     parse_mode: "HTML",
     reply_markup: keyboard,
   });
@@ -1032,9 +1029,7 @@ ${CATEGORY_EMOJI[category]} Category: <b>${category}</b>
     ],
   };
 
-  await bot.editMessageText(text, {
-    chat_id: chatId,
-    message_id: messageId,
+  await safeEditMessage(chatId, messageId, text, {
     parse_mode: "HTML",
     reply_markup: keyboard,
   });
@@ -1059,9 +1054,7 @@ ${PRIORITY_EMOJI[priority]} Priority: <b>${priority}</b>
     inline_keyboard: [[{ text: "❌ Cancel", callback_data: "todo_menu" }]],
   };
 
-  await bot.editMessageText(text, {
-    chat_id: chatId,
-    message_id: messageId,
+  await safeEditMessage(chatId, messageId, text, {
     parse_mode: "HTML",
     reply_markup: keyboard,
   });
@@ -1110,9 +1103,7 @@ Reminders that repeat automatically!
     ],
   };
 
-  await bot.editMessageText(text, {
-    chat_id: chatId,
-    message_id: messageId,
+  await safeEditMessage(chatId, messageId, text, {
     parse_mode: "HTML",
     reply_markup: keyboard,
   });
@@ -1165,9 +1156,7 @@ ${stats.completed >= 100 ? "👑" : "🔒"} Centurion (100 tasks)`;
     ],
   };
 
-  await bot.editMessageText(text, {
-    chat_id: chatId,
-    message_id: messageId,
+  await safeEditMessage(chatId, messageId, text, {
     parse_mode: "HTML",
     reply_markup: keyboard,
   });
@@ -1210,9 +1199,7 @@ async function showHelpMenu(chatId, messageId) {
     inline_keyboard: [[{ text: "« Main Menu", callback_data: "main_menu" }]],
   };
 
-  await bot.editMessageText(text, {
-    chat_id: chatId,
-    message_id: messageId,
+  await safeEditMessage(chatId, messageId, text, {
     parse_mode: "HTML",
     reply_markup: keyboard,
   });
@@ -1309,9 +1296,7 @@ async function showRemindersList(chatId, messageId) {
     { text: "« Main Menu", callback_data: "main_menu" },
   ]);
 
-  await bot.editMessageText(text, {
-    chat_id: chatId,
-    message_id: messageId,
+  await safeEditMessage(chatId, messageId, text, {
     parse_mode: "HTML",
     reply_markup: keyboard,
   });
@@ -1468,15 +1453,12 @@ bot.on("callback_query", async (query) => {
       await saveData();
       await answerToast(query.id, `😴 Snoozed for ${mins} mins`);
       const nextTime = formatDateTime(reminder.time);
-      await bot.editMessageText(
+      await safeEditMessage(chatId, messageId,
         `😴 <b>Snoozed!</b>\n\n📝 ${reminder.text}\n⏰ Next: ${nextTime}\n🔕 Snoozed ${reminder.snoozed}x`,
-        { chat_id: chatId, message_id: messageId, parse_mode: "HTML" },
+        { parse_mode: "HTML" },
       );
     } else {
-      await bot.editMessageText(`❌ Reminder not found`, {
-        chat_id: chatId,
-        message_id: messageId,
-      });
+      await safeEditMessage(chatId, messageId, `❌ Reminder not found`, {});
     }
     return;
   }
@@ -1574,7 +1556,7 @@ bot.on("callback_query", async (query) => {
       messageId,
     };
     const text = `🔄 <b>Daily at ${parseInt(hour) > 12 ? parseInt(hour) - 12 : hour}:00 ${parseInt(hour) >= 12 ? "PM" : "AM"}</b>\n\nType your reminder text:`;
-    await bot.editMessageText(text, {
+    await safeEditMessage(chatId, messageId, text, {
       chat_id: chatId,
       message_id: messageId,
       parse_mode: "HTML",
@@ -1690,11 +1672,9 @@ bot.on("callback_query", async (query) => {
     delete data.stats[chatId];
     delete data.settings[chatId];
     await saveData();
-    await bot.editMessageText(
+    await safeEditMessage(chatId, messageId,
       "🗑️ <b>All your data has been cleared!</b>\n\nUse /start to begin fresh.",
       {
-        chat_id: chatId,
-        message_id: messageId,
         parse_mode: "HTML",
         reply_markup: {
           inline_keyboard: [
@@ -1772,9 +1752,7 @@ ${soundStatus} <b>Sound:</b> ${settings.soundEnabled ? "Enabled" : "Disabled"}
     ],
   };
 
-  await bot.editMessageText(text, {
-    chat_id: chatId,
-    message_id: messageId,
+  await safeEditMessage(chatId, messageId, text, {
     parse_mode: "HTML",
     reply_markup: keyboard,
   });
@@ -1822,9 +1800,7 @@ Current: <b>${tzOffset}</b>
     { text: "« Back to Settings", callback_data: "settings_menu" },
   ]);
 
-  await bot.editMessageText(text, {
-    chat_id: chatId,
-    message_id: messageId,
+  await safeEditMessage(chatId, messageId, text, {
     parse_mode: "HTML",
     reply_markup: keyboard,
   });
@@ -1874,9 +1850,7 @@ Current: <b>${settings.timeFormat === "12h" ? "12-hour" : "24-hour"}</b>
     ],
   };
 
-  await bot.editMessageText(text, {
-    chat_id: chatId,
-    message_id: messageId,
+  await safeEditMessage(chatId, messageId, text, {
     parse_mode: "HTML",
     reply_markup: keyboard,
   });
@@ -1923,9 +1897,7 @@ Current: <b>${PRIORITY_EMOJI[settings.defaultPriority]} ${settings.defaultPriori
     ],
   };
 
-  await bot.editMessageText(text, {
-    chat_id: chatId,
-    message_id: messageId,
+  await safeEditMessage(chatId, messageId, text, {
     parse_mode: "HTML",
     reply_markup: keyboard,
   });
@@ -1976,9 +1948,7 @@ Current: <b>${settings.quickReminderMins} minutes</b>
     ],
   };
 
-  await bot.editMessageText(text, {
-    chat_id: chatId,
-    message_id: messageId,
+  await safeEditMessage(chatId, messageId, text, {
     parse_mode: "HTML",
     reply_markup: keyboard,
   });
@@ -2015,9 +1985,7 @@ async function showClearDataConfirm(chatId, messageId) {
     ],
   };
 
-  await bot.editMessageText(text, {
-    chat_id: chatId,
-    message_id: messageId,
+  await safeEditMessage(chatId, messageId, text, {
     parse_mode: "HTML",
     reply_markup: keyboard,
   });
