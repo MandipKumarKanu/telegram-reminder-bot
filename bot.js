@@ -2024,6 +2024,26 @@ async function showClearDataConfirm(chatId, messageId) {
 }
 
 // ============================================
+// FUNNY EXCUSE API
+// ============================================
+async function getFunnyExcuse() {
+  try {
+    const res = await fetch("https://naas.isalman.dev/no");
+    const json = await res.json();
+    return json.reason || "I'm just a reminder bot, not a magician! 🎩";
+  } catch {
+    const fallbacks = [
+      "I'm on a coffee break ☕",
+      "My brain cells are currently on vacation 🏖️",
+      "I tried, but my hamster wheel stopped spinning 🐹",
+      "Error 404: Intelligence not found 🤖",
+      "I would help, but I'm busy doing nothing 😴",
+    ];
+    return fallbacks[Math.floor(Math.random() * fallbacks.length)];
+  }
+}
+
+// ============================================
 // MESSAGE HANDLER - TEXT INPUT
 // ============================================
 bot.on("message", async (msg) => {
@@ -2032,7 +2052,22 @@ bot.on("message", async (msg) => {
   const chatId = msg.chat.id;
   const state = userStates[chatId];
 
-  if (!state) return;
+  // No active state - user sent random text
+  if (!state) {
+    const excuse = await getFunnyExcuse();
+    return bot.sendMessage(
+      chatId,
+      `🤷 <b>I don't understand that!</b>\n\n<i>"${excuse}"</i>\n\n💡 Use /start to see what I can do!`,
+      {
+        parse_mode: "HTML",
+        reply_markup: {
+          inline_keyboard: [
+            [{ text: "🏠 Open Menu", callback_data: "main_menu" }],
+          ],
+        },
+      }
+    );
+  }
 
   const text = msg.text;
 
